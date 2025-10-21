@@ -12,11 +12,6 @@ echo "🚀 Startscript gestart..."
 
 cd "$PROJECT_DIR"
 
-# === Pull laatste code ===
-echo "📥 Pulling latest changes from GitHub..."
-git fetch origin "$BRANCH"
-git reset --hard "origin/$BRANCH"
-
 # === Maven build ===
 echo "🔨 Building project with Maven..."
 mvn clean package -DskipTests
