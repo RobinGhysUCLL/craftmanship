@@ -2,7 +2,7 @@
 set -e  # Stop bij fouten
 
 # === CONFIGURATIE ===
-PROJECT_DIR="/craftmanship"
+PROJECT_DIR="/craftmanship/craftmanship"
 BRANCH="main"
 IMAGE_NAME="craftmanship-app"
 CONTAINER_NAME="craftmanship"
