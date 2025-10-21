@@ -6,4 +6,4 @@ echo "🚀 Startscript gestart..."
 cd /craftmanship/craftmanship
 
 echo "🐳 Building and starting with Docker Compose..."
-sudo docker compose up -d --build
+docker compose up -d --build
