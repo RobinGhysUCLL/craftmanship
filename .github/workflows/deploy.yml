@@ -19,13 +19,5 @@ jobs:
           port: 22345
           script: |
             cd /craftmanship/craftmanship
-
-            echo "📥 Forceren update vanaf origin/main (hard reset)"
-            # haal remote changes op en overschrijf alles lokaal (destructief)
-            git fetch origin main --quiet
-            git reset --hard origin/main
-            git clean -fdx   # verwijdert untracked en ignored bestanden (optioneel maar zorgt voor een schone working tree)
-
-            echo "Zorg dat start.sh uitvoerbaar is en run het met bash"
-            chmod +x start.sh || true
-            bash start.sh
+            sudo git pull
+            ./start.sh
