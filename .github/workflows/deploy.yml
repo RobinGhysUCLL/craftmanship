@@ -2,7 +2,7 @@ name: Deploy to Server
 
 on:
   push:
-    branches: [main] # Pas aan naar jouw branch
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          if_key_exists: replace
+
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -19,9 +29,7 @@ jobs:
           port: 22345
           script: |
             cd /craftmanship
-
             echo "📥 Pulling latest changes..."
             git pull origin main
-
             echo "running start script..."
             ./start.sh
