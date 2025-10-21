@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: craftmanship
+    ports:
+      - "7100:7100"
+    restart: unless-stopped
+    # Voeg environment variables toe indien nodig
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - craftmanship-network
+
+networks:
+  craftmanship-network:
+    driver: bridge
