@@ -18,10 +18,5 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22345
           script: |
-            cd /craftmanship
-
-            echo "📥 Pulling latest changes..."
-            git pull origin main
-
-            echo "running start script..."
-            ./start.sh
+                cd /craftmanship
+                ./start.sh
