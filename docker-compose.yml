@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: craftmanship
     ports:
-      - "7100:7100"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     restart: unless-stopped
-    # Voeg environment variables toe indien nodig
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=${SERVER_PORT}
     networks:
       - craftmanship-network
 
