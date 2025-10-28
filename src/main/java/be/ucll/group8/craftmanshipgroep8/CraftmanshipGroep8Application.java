@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CraftmanshipGroep8Application {
-
     public static void main(String[] args) {
         SpringApplication.run(CraftmanshipGroep8Application.class, args);
     }
-
 }

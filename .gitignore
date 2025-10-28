@@ -1,6 +1,6 @@
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 .env
@@ -30,5 +30,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+# Ignore top-level application.yaml
+/application.yaml
+
+/flyway.conf
+/src/main/resources/application-local.yaml
+/src/main/resources/sap/output/*.xml
