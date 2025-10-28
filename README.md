@@ -1,3 +1,4 @@
+```yaml
 spring:
   profiles:
     active: dev
@@ -7,3 +8,4 @@ spring:
     password: craftmanship123
 jwt:
   secret-key: d2ViNC1ub3Qtc28tc2VjcmV0LWFjY2Vzcy1zZWNyZXQ=
+```
