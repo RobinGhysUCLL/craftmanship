@@ -4,12 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: craftmanship
+    env_file:
+      - .env
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     restart: unless-stopped
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=${SERVER_PORT}
     networks:
       - craftmanship-network
 
