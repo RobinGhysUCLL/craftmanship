@@ -81,6 +81,8 @@ public class SecurityConfig {
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 // Allow Swagger UI
                                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                                //allow h2
+                                .requestMatchers("/h2-console").permitAll()
                                 .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
