@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.m2/
+target/
+build/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.class
+*.jar
+*.war
+*.ear
+
+# Gradle
+.gradle/
+gradle/
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+release.properties
+
+# Compiled files
+*.o
+*.so
+*.dylib
+
+# OS
+Thumbs.db
