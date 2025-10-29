@@ -18,7 +18,7 @@ public class OpenAPIConfig {
 
     @Bean
     public OpenAPI customOpenAPI(
-            @Value("${SERVER_PORT:7100}") String serverPort,
+            @Value("${SERVER_PORT:8080}") String serverPort,
             @Value("${spring.profiles.active:}") String activeProfile) {
         OpenAPI openAPI = new OpenAPI();
 
