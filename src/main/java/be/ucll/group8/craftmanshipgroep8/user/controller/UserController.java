@@ -24,8 +24,8 @@ public class UserController {
         return userService.authenticate(authenticationRequest.username(), authenticationRequest.password());
     }
 
-    @PostMapping("/register")
-    public AuthenticationResponse register(@RequestBody SignUpInput signUpInput) {
+    @PostMapping("/signup")
+    public AuthenticationResponse signup(@RequestBody SignUpInput signUpInput) {
         return userService.signup(signUpInput);
     }
 
