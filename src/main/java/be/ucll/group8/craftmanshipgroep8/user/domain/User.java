@@ -1,21 +1,31 @@
 package be.ucll.group8.craftmanshipgroep8.user.domain;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
 @Entity(name = "user")
 public class User {
-    @Id
-    private UUID id;
+
+    @EmbeddedId
+    private UserId id;
+
+    @NotNull(message = "Username cannot be null.")
     private String userName;
+
+    @NotNull(message = "Password cannot be null.")
     private String password;
+
+    @Email(message = "Email format is invalid, example email format: user@example.com")
     private String email;
 
 
-    public User(UUID id, String userName, String email, String password) {
-        this.id = id;
+    public User(String userName, String email, String password) {
+        this.id = new UserId();
         this.userName = userName;
         this.password = password;
         this.email = email;
@@ -26,7 +36,7 @@ public class User {
     }
 
 
-    public UUID getId() {
+    public UserId getId() {
         return id;
     }
 
