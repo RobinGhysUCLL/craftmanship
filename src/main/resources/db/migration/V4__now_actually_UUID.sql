@@ -4,10 +4,10 @@ DROP TABLE IF EXISTS "user" CASCADE;
 -- USER Table Creation
 CREATE TABLE "user"
 (
-    id        VARCHAR(36) NOT NULL,
-    user_name TEXT        NOT NULL,
-    password  TEXT        NOT NULL,
-    email     TEXT        NOT NULL,
+    id        UUID NOT NULL,
+    user_name TEXT NOT NULL,
+    password  TEXT NOT NULL,
+    email     TEXT NOT NULL,
     CONSTRAINT user_pkey PRIMARY KEY (id),
     CONSTRAINT user_user_name_unique UNIQUE (user_name)
 );
