@@ -32,7 +32,7 @@ public class UserService {
 
     public AuthenticationResponse authenticate(String username, String password) {
         if (!userExistsByUsername(username)) {
-            throw new RuntimeException("Gebruiker met gebruikersnaam: " + username + " bestaat niet.");
+            throw new RuntimeException("Gebruiker met gebruikersnaam '" + username + "' bestaat niet.");
         }
         User user = userRepository.findByUserName(username);
         if (!passwordEncoder.matches(password, user.getPassword())) {
