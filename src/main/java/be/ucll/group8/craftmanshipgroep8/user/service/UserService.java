@@ -1,6 +1,7 @@
 package be.ucll.group8.craftmanshipgroep8.user.service;
 
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpInput;
 import be.ucll.group8.craftmanshipgroep8.user.domain.User;
 import be.ucll.group8.craftmanshipgroep8.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,5 +41,17 @@ public class UserService {
         }
 
         return new AuthenticationResponse(jwtService.generateToken(user));
+    }
+
+    public AuthenticationResponse signup(SignUpInput signUpInput) {
+        if (userExistsByUsername(signUpInput.username())) {
+            throw new RuntimeException("Gebruiker met gebruikersnaam '" + signUpInput.username() + "' bestaat al.");
+        }
+
+        final var hashedPassword = passwordEncoder.encode(signUpInput.password());
+        final var user = new User(signUpInput.username(), signUpInput.email(), hashedPassword);
+        final User savedUser = userRepository.save(user);
+
+        return new AuthenticationResponse(jwtService.generateToken(savedUser));
     }
 }
