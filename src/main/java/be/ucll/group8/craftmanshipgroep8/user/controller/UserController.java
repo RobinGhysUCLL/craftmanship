@@ -2,6 +2,7 @@ package be.ucll.group8.craftmanshipgroep8.user.controller;
 
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpInput;
 import be.ucll.group8.craftmanshipgroep8.user.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,11 @@ public class UserController {
     @PostMapping("/login")
     public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest) {
         return userService.authenticate(authenticationRequest.username(), authenticationRequest.password());
+    }
+
+    @PostMapping("/register")
+    public AuthenticationResponse register(@RequestBody SignUpInput signUpInput) {
+        return userService.signup(signUpInput);
     }
 
 }
