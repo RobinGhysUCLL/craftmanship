@@ -2,7 +2,8 @@ package be.ucll.group8.craftmanshipgroep8.user.controller;
 
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
-import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpInput;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignupResponse;
 import be.ucll.group8.craftmanshipgroep8.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public AuthenticationResponse signup(@Valid @RequestBody SignUpInput signUpInput) {
+    public SignupResponse signup(@Valid @RequestBody SignUpRequest signUpInput) {
         return userService.signup(signUpInput);
     }
 
