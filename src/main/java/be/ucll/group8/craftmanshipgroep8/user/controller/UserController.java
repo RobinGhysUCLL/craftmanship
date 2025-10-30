@@ -2,8 +2,10 @@ package be.ucll.group8.craftmanshipgroep8.user.controller;
 
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
-import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpInput;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
+import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignupResponse;
 import be.ucll.group8.craftmanshipgroep8.user.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +22,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest) {
-        return userService.authenticate(authenticationRequest.username(), authenticationRequest.password());
+    public AuthenticationResponse login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
+        return userService.authenticate(authenticationRequest.email(), authenticationRequest.password());
     }
 
     @PostMapping("/signup")
-    public AuthenticationResponse signup(@RequestBody SignUpInput signUpInput) {
+    public SignupResponse signup(@Valid @RequestBody SignUpRequest signUpInput) {
         return userService.signup(signUpInput);
     }
 
