@@ -36,7 +36,6 @@ public class UserService {
         return findUserByEmail(email) != null;
     }
 
-
     public AuthenticationResponse authenticate(String email, String password) {
         if (!userExistsByEmail(email)) {
             throw new RuntimeException("Gebruiker met email '" + email + "' bestaat niet.");
@@ -52,6 +51,10 @@ public class UserService {
     public SignupResponse signup(SignUpRequest signUpInput) {
         if (userExistsByUsername(signUpInput.username())) {
             throw new RuntimeException("Gebruiker met gebruikersnaam '" + signUpInput.username() + "' bestaat al.");
+        }
+
+        if (userExistsByEmail(signUpInput.email())) {
+            throw new RuntimeException("Gebruiker met email '" + signUpInput.email() + "' bestaat al.");
         }
 
         final var hashedPassword = passwordEncoder.encode(signUpInput.password());
