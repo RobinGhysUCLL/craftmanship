@@ -1,4 +1,4 @@
-package be.ucll.group8.craftmanshipgroep8.user.service;
+package be.ucll.group8.craftmanshipgroep8.config.service;
 
 import be.ucll.group8.craftmanshipgroep8.config.JwtProperties;
 import be.ucll.group8.craftmanshipgroep8.user.domain.User;

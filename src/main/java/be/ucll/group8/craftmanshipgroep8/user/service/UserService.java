@@ -1,5 +1,6 @@
 package be.ucll.group8.craftmanshipgroep8.user.service;
 
+import be.ucll.group8.craftmanshipgroep8.config.service.JwtService;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignupResponse;
@@ -24,7 +25,7 @@ public class UserService {
         return userRepository.findUserByUserName(username);
     }
 
-    boolean userExistsByUsername(String username) {
+    public boolean userExistsByUsername(String username) {
         return findUserByUsername(username) != null;
     }
 
@@ -32,7 +33,7 @@ public class UserService {
         return userRepository.findUserByEmail(email);
     }
 
-    boolean userExistsByEmail(String email) {
+    public boolean userExistsByEmail(String email) {
         return findUserByEmail(email) != null;
     }
 
