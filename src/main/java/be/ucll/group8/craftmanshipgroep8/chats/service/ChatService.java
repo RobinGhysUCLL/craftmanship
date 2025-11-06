@@ -10,7 +10,6 @@ import be.ucll.group8.craftmanshipgroep8.chats.controller.Dto.PostMessage;
 import be.ucll.group8.craftmanshipgroep8.chats.domain.Chat;
 import be.ucll.group8.craftmanshipgroep8.chats.domain.Message;
 import be.ucll.group8.craftmanshipgroep8.chats.repository.ChatRepository;
-import be.ucll.group8.craftmanshipgroep8.user.domain.User;
 import be.ucll.group8.craftmanshipgroep8.user.service.UserService;
 
 @Service
@@ -45,17 +44,20 @@ public class ChatService {
         return new GetChat(dtoMessages);
     }
 
-    public PostMessage postMessage(String email, String message) {
-        Message userMessage = new Message(message, false);
-
-        // temporary response, this needs to be the AI message in the future
-        Message aiResponse = new Message("Hello i am RAFVIOLI AI and i am here with a response", true);
-
-        if (!userService.userExistsByEmail(email)) {
-            throw new RuntimeException("Gebruiker met email '" + email + "' bestaat niet.");
-        }
+    public PostMessage postMessage(String email, String messageText) {
+        var user = userService.findUserByEmail(email);
+        if (user == null)
+            throw new RuntimeException("Gebruiker bestaat niet.");
 
         Chat chat = chatRepository.findByUserEmail(email);
+        Message userMessage = new Message(messageText, false);
+
+        // temporary response, this needs to be the AI message in the future
+        Message aiResponse = new Message("AI antwoord", true);
+
+        if (chat == null) {
+            chat = new Chat(user);
+        }
 
         chat.addMessage(userMessage);
 
@@ -64,7 +66,6 @@ public class ChatService {
 
         chatRepository.save(chat);
 
-        // temporary response, this needs to be the AI message in the future
         return new PostMessage(aiResponse.getId().id(), aiResponse.getMessage(), aiResponse.getAi(),
                 aiResponse.getTimestamp());
     }

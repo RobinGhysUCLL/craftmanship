@@ -1,10 +1,12 @@
 package be.ucll.group8.craftmanshipgroep8.chats.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.group8.craftmanshipgroep8.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -24,12 +26,16 @@ public class Chat {
     @JsonIgnore
     private User user;
 
-    @OneToMany
-    private List<Message> messages;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "chat_id", referencedColumnName = "id")
+    private List<Message> messages = new ArrayList<>();
 
     public Chat(User user) {
         this.id = new ChatId();
         this.user = user;
+    }
+
+    protected Chat() {
     }
 
     public User getUser() {
