@@ -43,7 +43,7 @@ public class Journal {
     protected Journal() {
     }
 
-    private JournalId getId() {
+    public JournalId getId() {
         return id;
     }
 
