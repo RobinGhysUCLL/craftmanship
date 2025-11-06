@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.ucll.group8.craftmanshipgroep8.journal.controller.Dto.GetJournalDto;
 import be.ucll.group8.craftmanshipgroep8.journal.controller.Dto.PostJournalDto;
 import be.ucll.group8.craftmanshipgroep8.journal.domain.Journal;
 import be.ucll.group8.craftmanshipgroep8.journal.service.JournalService;
@@ -24,7 +25,7 @@ public class JournalController {
     }
 
     @GetMapping
-    public List<Journal> getJournals(Principal principal) {
+    public List<GetJournalDto> getJournals(Principal principal) {
         String email = principal.getName();
         return journalService.getJournals(email);
     }
