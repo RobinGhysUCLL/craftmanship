@@ -53,7 +53,7 @@ public class ChatService {
         Message userMessage = new Message(messageText, false);
 
         // temporary response, this needs to be the AI message in the future
-        Message aiResponse = new Message("AI antwoord", true);
+        Message aiResponse = new Message("Hello i am RAFVIOLI AI and i am here with a response", true);
 
         if (chat == null) {
             chat = new Chat(user);
