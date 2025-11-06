@@ -3,8 +3,9 @@ package be.ucll.group8.craftmanshipgroep8.chats.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import be.ucll.group8.craftmanshipgroep8.chats.controller.Dto.MessageResponse;
-import be.ucll.group8.craftmanshipgroep8.chats.service.MessageService;
+import be.ucll.group8.craftmanshipgroep8.chats.domain.Chat;
+import be.ucll.group8.craftmanshipgroep8.chats.domain.Message;
+import be.ucll.group8.craftmanshipgroep8.chats.service.ChatService;
 
 import java.security.Principal;
 import java.util.List;
@@ -15,24 +16,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/messages")
-public class MessageController {
+public class ChatController {
 
-    private final MessageService messageService;
+    private final ChatService chatService;
 
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
     }
 
     @GetMapping
-    public List<MessageResponse> getMessages(Principal principal) {
+    public Chat getChat(Principal principal) {
         String email = principal.getName();
-        return messageService.getMessages(email);
+        return chatService.getMessages(email);
     }
 
     @PostMapping
-    public String postMessage(@RequestBody String message, Principal principal) {
+    public Message postMessage(@RequestBody String message, Principal principal) {
         String email = principal.getName();
-        return messageService.postMessage(email, message);
+        return chatService.postMessage(email, message);
     }
 
 }
