@@ -13,22 +13,16 @@ public class Message {
     @EmbeddedId
     private MessageId id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
+    private String message;
 
-    private String userMessage;
-
-    private String aiResponse;
+    private Boolean ai;
 
     private LocalDateTime timestamp;
 
-    public Message(User user, String userMessage, String aiResponse) {
+    public Message(String message, Boolean ai) {
         this.id = new MessageId();
-        this.user = user;
-        this.userMessage = userMessage;
-        this.aiResponse = aiResponse;
+        this.message = message;
+        this.ai = ai;
         this.timestamp = LocalDateTime.now();
     }
 
@@ -36,19 +30,15 @@ public class Message {
     }
 
     public MessageId getId() {
-        return id;
+        return this.id;
     }
 
-    public User getUser() {
-        return user;
+    public String getMessage() {
+        return message;
     }
 
-    public String getUserMessage() {
-        return userMessage;
-    }
-
-    public String getAiResponse() {
-        return aiResponse;
+    public Boolean getAi() {
+        return ai;
     }
 
     public LocalDateTime getTimestamp() {
