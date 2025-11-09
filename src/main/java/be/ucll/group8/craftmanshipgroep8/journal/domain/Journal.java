@@ -1,6 +1,7 @@
 package be.ucll.group8.craftmanshipgroep8.journal.domain;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +23,7 @@ public class Journal {
     private String title;
     private String content;
     private Mood mood;
-    private List<String> tags;
+    private String tags;
     private LocalDate date;
 
     @ManyToOne
@@ -35,7 +36,7 @@ public class Journal {
         setTitle(title);
         setContent(content);
         setMood(mood);
-        setTags(tags);
+        setTagsList(tags);
         setDate(date);
         setUser(user);
     }
@@ -72,11 +73,21 @@ public class Journal {
     }
 
     public List<String> getTags() {
-        return tags;
+        if (tags == null || tags.isEmpty() || tags.equals("{a}")) {
+            return List.of();
+        }
+        String cleaned = tags.replace("{", "").replace("}", "");
+        if (cleaned.isEmpty())
+            return List.of();
+        return Arrays.asList(cleaned.split(","));
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+    public void setTagsList(List<String> tagsList) {
+        if (tagsList == null || tagsList.isEmpty()) {
+            this.tags = null;
+        } else {
+            this.tags = "{" + String.join(",", tagsList) + "}";
+        }
     }
 
     public LocalDate getDate() {
