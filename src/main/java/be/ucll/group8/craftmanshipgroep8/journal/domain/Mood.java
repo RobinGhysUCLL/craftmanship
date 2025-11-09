@@ -7,6 +7,6 @@ public enum Mood {
     SAD,
     EXCITED,
     STRESSED,
-    PEACEFULL,
-    GRATEFULL
+    PEACEFUL,
+    GRATEFUL
 }
