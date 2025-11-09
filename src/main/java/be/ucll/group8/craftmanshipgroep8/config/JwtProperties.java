@@ -9,6 +9,6 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record JwtProperties(String secretKey,
         @DefaultValue Token token) {
     public record Token(@DefaultValue("craftmanship") String issuer,
-            @DefaultValue("8h") Duration lifetime) {
+            @DefaultValue("7d") Duration lifetime) {
     }
 }
