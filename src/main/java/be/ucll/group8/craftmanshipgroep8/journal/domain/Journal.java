@@ -1,6 +1,7 @@
 package be.ucll.group8.craftmanshipgroep8.journal.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,14 +25,14 @@ public class Journal {
     private String content;
     private Mood mood;
     private String tags;
-    private LocalDate date;
+    private LocalDateTime date;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
 
-    public Journal(String title, String content, Mood mood, List<String> tags, LocalDate date, User user) {
+    public Journal(String title, String content, Mood mood, List<String> tags, LocalDateTime date, User user) {
         this.id = new JournalId();
         setTitle(title);
         setContent(content);
@@ -90,11 +91,11 @@ public class Journal {
         }
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
