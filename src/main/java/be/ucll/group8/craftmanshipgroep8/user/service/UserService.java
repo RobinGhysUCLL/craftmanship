@@ -1,13 +1,14 @@
 package be.ucll.group8.craftmanshipgroep8.user.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import be.ucll.group8.craftmanshipgroep8.config.service.JwtService;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignupResponse;
 import be.ucll.group8.craftmanshipgroep8.user.domain.User;
 import be.ucll.group8.craftmanshipgroep8.user.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -22,41 +23,41 @@ public class UserService {
     }
 
     public User findUserByUsername(String username) {
-        return userRepository.findUserByUserName(username);
+        return userRepository.findUserByUserName(username)
+                .orElseThrow(() -> new RuntimeException(
+                        "Gebruiker met username '" + username + "' bestaat niet."));
     }
 
     public boolean userExistsByUsername(String username) {
-        return findUserByUsername(username) != null;
+        return userRepository.findUserByUserName(username).isPresent();
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Gebruiker met email '" + email + "' bestaat niet."));
     }
 
     public boolean userExistsByEmail(String email) {
-        return findUserByEmail(email) != null;
+        return userRepository.findUserByEmail(email).isPresent();
     }
 
     public AuthenticationResponse authenticate(String email, String password) {
-        if (!userExistsByEmail(email)) {
-            throw new RuntimeException("Gebruiker met email '" + email + "' bestaat niet.");
-        }
-        User user = findUserByEmail(email);
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        final var user = findUserByEmail(email);
+
+        if (!passwordEncoder.matches(password, user.getPassword()))
             throw new RuntimeException("Onjuist wachtwoord.");
-        }
 
         return new AuthenticationResponse(jwtService.generateToken(user), user.getUserName());
     }
 
     public SignupResponse signup(SignUpRequest signUpInput) {
-        if (userExistsByUsername(signUpInput.username())) {
-            throw new RuntimeException("Gebruiker met gebruikersnaam '" + signUpInput.username() + "' bestaat al.");
-        }
+        System.err.println(signUpInput);
 
-        if (userExistsByEmail(signUpInput.email())) {
+        if (userExistsByUsername(signUpInput.username()))
+            throw new RuntimeException("Gebruiker met gebruikersnaam '" + signUpInput.username() + "' bestaat al.");
+
+        if (userExistsByEmail(signUpInput.email()))
             throw new RuntimeException("Gebruiker met email '" + signUpInput.email() + "' bestaat al.");
-        }
 
         final var hashedPassword = passwordEncoder.encode(signUpInput.password());
         final var user = new User(signUpInput.username(), signUpInput.email(), hashedPassword);

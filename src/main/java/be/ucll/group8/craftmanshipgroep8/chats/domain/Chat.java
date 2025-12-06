@@ -17,7 +17,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "chat")
 public class Chat {
-
     @EmbeddedId
     private ChatId id;
 
