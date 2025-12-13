@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class UserRepositoryTest {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -74,13 +73,14 @@ class UserRepositoryTest {
         userRepository.save(robin);
 
         // When
-        User foundUser = userRepository.findByUserName("ghys_pad");
+        Optional<User> foundUser = userRepository.findUserByUserName("ghys_pad");
 
         // Then
-        assertNotNull(foundUser);
-        assertEquals(robin.getUserName(), foundUser.getUserName());
-        assertEquals(robin.getEmail(), foundUser.getEmail());
+        assertTrue(foundUser.isPresent());
+        assertEquals(robin.getUserName(), foundUser.get().getUserName());
+        assertEquals(robin.getEmail(), foundUser.get().getEmail());
     }
+
 
     @Test
     void given_non_existent_username_when_find_by_username_then_return_null() {
@@ -88,10 +88,10 @@ class UserRepositoryTest {
         userRepository.save(robin);
 
         // When
-        User foundUser = userRepository.findByUserName("raf");
+        Optional<User> foundUser = userRepository.findUserByUserName("Raf");
 
         // Then
-        assertNull(foundUser);
+        assertFalse(foundUser.isPresent());
     }
 
     @Test
@@ -100,12 +100,12 @@ class UserRepositoryTest {
         userRepository.save(roel);
 
         // When
-        User foundUser = userRepository.findUserByUserName("roel_crabbe");
+        Optional<User> foundUser = userRepository.findUserByUserName("roel_crabbe");
 
         // Then
         assertNotNull(foundUser);
-        assertEquals(roel.getUserName(), foundUser.getUserName());
-        assertEquals(roel.getEmail(), foundUser.getEmail());
+        assertEquals(roel.getUserName(), foundUser.get().getUserName());
+        assertEquals(roel.getEmail(), foundUser.get().getEmail());
     }
 
     @Test
@@ -114,24 +114,24 @@ class UserRepositoryTest {
         userRepository.save(robin);
 
         // When
-        User foundUser = userRepository.findUserByEmail("ghys.pad@example.com");
+        Optional<User> foundUser = userRepository.findUserByEmail("ghys.pad@example.com");
 
         // Then
         assertNotNull(foundUser);
-        assertEquals(robin.getEmail(), foundUser.getEmail());
-        assertEquals(robin.getUserName(), foundUser.getUserName());
+        assertEquals(robin.getEmail(), foundUser.get().getEmail());
+        assertEquals(robin.getUserName(), foundUser.get().getUserName());
     }
 
     @Test
-    void given_non_existent_email_when_find_user_by_email_then_return_null() {
+    void given_non_existent_email_when_find_user_by_email_then_return_empty() {
         // Given
         userRepository.save(robin);
 
         // When
-        User foundUser = userRepository.findUserByEmail("gert@example.com");
+        Optional<User> foundUser = userRepository.findUserByEmail("gert@example.com");
 
         // Then
-        assertNull(foundUser);
+        assertFalse(foundUser.isPresent());
     }
 
     @Test
@@ -253,13 +253,13 @@ class UserRepositoryTest {
         userRepository.save(upperCaseUser);
 
         // When
-        User foundLower = userRepository.findByUserName("raf");
-        User foundUpper = userRepository.findByUserName("RAF");
+        Optional<User> foundLower = userRepository.findUserByUserName("raf");
+        Optional<User> foundUpper = userRepository.findUserByUserName("RAF");
 
         // Then
         assertNotNull(foundLower);
         assertNotNull(foundUpper);
-        assertEquals("raf@example.com", foundLower.getEmail());
-        assertEquals("RAF@example.com", foundUpper.getEmail());
+        assertEquals("raf@example.com", foundLower.get().getEmail());
+        assertEquals("RAF@example.com", foundUpper.get().getEmail());
     }
 }
