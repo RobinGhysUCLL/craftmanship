@@ -75,12 +75,12 @@ class ChatRepositoryTest {
         chatRepository.save(testChat1);
 
         // When
-        Chat foundChat = chatRepository.findByUserEmail("ghys.pad@example.com");
+        Optional<Chat> foundChat = chatRepository.findByUserEmail("ghys.pad@example.com");
 
         // Then
         assertNotNull(foundChat);
-        assertEquals(testUser1.getEmail(), foundChat.getUser().getEmail());
-        assertEquals(testUser1.getUserName(), foundChat.getUser().getUserName());
+        assertEquals(testUser1.getEmail(), foundChat.get().getUser().getEmail());
+        assertEquals(testUser1.getUserName(), foundChat.get().getUser().getUserName());
     }
 
     @Test
@@ -89,10 +89,10 @@ class ChatRepositoryTest {
         chatRepository.save(testChat1);
 
         // When
-        Chat foundChat = chatRepository.findByUserEmail("nonexistent@example.com");
+        Optional<Chat> foundChat = chatRepository.findByUserEmail("nonexistent@example.com");
 
         // Then
-        assertNull(foundChat);
+        assertFalse(foundChat.isPresent());
     }
 
     @Test
@@ -102,14 +102,14 @@ class ChatRepositoryTest {
         chatRepository.save(testChat2);
 
         // When
-        Chat foundChat1 = chatRepository.findByUserEmail("ghys.pad@example.com");
-        Chat foundChat2 = chatRepository.findByUserEmail("roel.crabbe@example.com");
+        Optional<Chat> foundChat1 = chatRepository.findByUserEmail("ghys.pad@example.com");
+        Optional<Chat> foundChat2 = chatRepository.findByUserEmail("roel.crabbe@example.com");
 
         // Then
         assertNotNull(foundChat1);
         assertNotNull(foundChat2);
-        assertEquals("ghys_pad", foundChat1.getUser().getUserName());
-        assertEquals("roel_crabbe", foundChat2.getUser().getUserName());
+        assertEquals("ghys_pad", foundChat1.get().getUser().getUserName());
+        assertEquals("roel_crabbe", foundChat2.get().getUser().getUserName());
     }
 
     @Test
@@ -122,13 +122,13 @@ class ChatRepositoryTest {
         chatRepository.save(testChat1);
 
         // When
-        Chat foundChat = chatRepository.findByUserEmail("ghys.pad@example.com");
+        Optional<Chat> foundChat = chatRepository.findByUserEmail("ghys.pad@example.com");
 
         // Then
         assertNotNull(foundChat);
-        assertEquals(2, foundChat.getMessages().size());
-        assertFalse(foundChat.getMessages().get(0).getAi());
-        assertTrue(foundChat.getMessages().get(1).getAi());
+        assertEquals(2, foundChat.get().getMessages().size());
+        assertFalse(foundChat.get().getMessages().get(0).getAi());
+        assertTrue(foundChat.get().getMessages().get(1).getAi());
     }
 
     @Test
@@ -191,10 +191,10 @@ class ChatRepositoryTest {
         userRepository.save(userWithoutChat);
 
         // When
-        Chat foundChat = chatRepository.findByUserEmail("nochat@example.com");
+        Optional<Chat> foundChat = chatRepository.findByUserEmail("nochat@example.com");
 
         // Then
-        assertNull(foundChat);
+        assertFalse(foundChat.isPresent());
     }
 
     @Test
@@ -209,7 +209,7 @@ class ChatRepositoryTest {
 
         // Then
         assertEquals(0, chatRepository.count());
-        assertNull(chatRepository.findByUserEmail("ghys.pad@example.com"));
-        assertNull(chatRepository.findByUserEmail("roel.crabbe@example.com"));
+        assertFalse(chatRepository.findByUserEmail("roel.crabbe@example.com").isPresent());
+        assertFalse(chatRepository.findByUserEmail("roel.crabbe@example.com").isPresent());
     }
 }
