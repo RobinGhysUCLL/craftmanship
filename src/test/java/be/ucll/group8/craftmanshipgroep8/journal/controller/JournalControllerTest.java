@@ -1,5 +1,6 @@
 package be.ucll.group8.craftmanshipgroep8.journal.controller;
 
+import be.ucll.group8.craftmanshipgroep8.chats.service.AiService;  // Add this import
 import be.ucll.group8.craftmanshipgroep8.journal.controller.Dto.GetJournalDto;
 import be.ucll.group8.craftmanshipgroep8.journal.controller.Dto.PostJournalDto;
 import be.ucll.group8.craftmanshipgroep8.journal.domain.Journal;
@@ -18,12 +19,16 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -41,6 +46,9 @@ class JournalControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private AiService aiService;
+
     private String testUserEmail;
     private String testUserPassword;
     private String authToken;
@@ -49,6 +57,8 @@ class JournalControllerTest {
     void setUp() {
         journalRepository.deleteAll();
         userRepository.deleteAll();
+        when(aiService.generateReply(anyList(), anyString()))
+            .thenReturn("Mocked AI response");
 
         testUserEmail = "ghys.pad@example.com";
         testUserPassword = "Password123!";
