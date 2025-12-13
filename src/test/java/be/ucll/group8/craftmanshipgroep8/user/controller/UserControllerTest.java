@@ -1,5 +1,6 @@
 package be.ucll.group8.craftmanshipgroep8.user.controller;
 
+import be.ucll.group8.craftmanshipgroep8.chats.service.AiService;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.AuthenticationResponse;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
@@ -16,13 +17,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class UserControllerTest {
-
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -34,6 +37,9 @@ class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private AiService aiService;
 
     @BeforeEach
     void setUp() {
@@ -378,7 +384,9 @@ class UserControllerTest {
         );
 
         // Then
-        User savedUser = userRepository.findUserByEmail("ghys.pad@example.com");
+        Optional<User> savedUserOptional = userRepository.findUserByEmail("ghys.pad@example.com");
+        User savedUser = savedUserOptional.get();
+
         assertNotNull(savedUser);
         assertNotEquals("PlainPassword123!", savedUser.getPassword());
         assertTrue(passwordEncoder.matches("PlainPassword123!", savedUser.getPassword()));
