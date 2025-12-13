@@ -1,15 +1,14 @@
 package be.ucll.group8.craftmanshipgroep8.chats.domain;
 
-import be.ucll.group8.craftmanshipgroep8.user.domain.User;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "messages")
 public class Message {
-
     @EmbeddedId
     private MessageId id;
 
