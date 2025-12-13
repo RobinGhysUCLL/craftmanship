@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,7 +23,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
     @Mock
     private UserRepository userRepository;
 
@@ -46,7 +47,7 @@ class UserServiceTest {
     @Test
     void given_existing_username_when_find_user_by_username_then_return_user() {
         // Given
-        when(userRepository.findUserByUserName("ghys_pad")).thenReturn(robin);
+        when(userRepository.findUserByUserName("ghys_pad")).thenReturn(Optional.of(robin));
 
         // When
         User foundUser = userService.findUserByUsername("ghys_pad");
@@ -59,22 +60,23 @@ class UserServiceTest {
     }
 
     @Test
-    void given_non_existing_username_when_find_user_by_username_then_return_null() {
+    void given_non_existing_username_when_find_user_by_username_then_throw_exception() {
         // Given
-        when(userRepository.findUserByUserName("raf")).thenReturn(null);
+        when(userRepository.findUserByUserName("raf")).thenReturn(Optional.empty());
 
-        // When
-        User foundUser = userService.findUserByUsername("raf");
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> userService.findUserByUsername("raf"));
 
-        // Then
-        assertNull(foundUser);
+        assertTrue(exception.getMessage().contains("bestaat niet"));
+        assertTrue(exception.getMessage().contains("raf"));
         verify(userRepository, times(1)).findUserByUserName("raf");
     }
 
     @Test
     void given_existing_username_when_user_exists_by_username_then_return_true() {
         // Given
-        when(userRepository.findUserByUserName("ghys_pad")).thenReturn(robin);
+        when(userRepository.findUserByUserName("ghys_pad")).thenReturn(Optional.of(robin));
 
         // When
         boolean exists = userService.userExistsByUsername("ghys_pad");
@@ -87,7 +89,7 @@ class UserServiceTest {
     @Test
     void given_non_existing_username_when_user_exists_by_username_then_return_false() {
         // Given
-        when(userRepository.findUserByUserName("raf")).thenReturn(null);
+        when(userRepository.findUserByUserName("raf")).thenReturn(Optional.empty());
 
         // When
         boolean exists = userService.userExistsByUsername("raf");
@@ -100,7 +102,7 @@ class UserServiceTest {
     @Test
     void given_existing_email_when_find_user_by_email_then_return_user() {
         // Given
-        when(userRepository.findUserByEmail("ghys.pad@example.com")).thenReturn(robin);
+        when(userRepository.findUserByEmail("ghys.pad@example.com")).thenReturn(Optional.of(robin));
 
         // When
         User foundUser = userService.findUserByEmail("ghys.pad@example.com");
@@ -113,22 +115,24 @@ class UserServiceTest {
     }
 
     @Test
-    void given_non_existing_email_when_find_user_by_email_then_return_null() {
+    void given_non_existing_email_when_find_user_by_email_then_throw_exception() {
         // Given
-        when(userRepository.findUserByEmail("raf@example.com")).thenReturn(null);
+        when(userRepository.findUserByEmail("raf@example.com")).thenReturn(Optional.empty());
 
-        // When
-        User foundUser = userService.findUserByEmail("raf@example.com");
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> userService.findUserByEmail("raf@example.com"));
 
-        // Then
-        assertNull(foundUser);
+        assertTrue(exception.getMessage().contains("bestaat niet"));
+        assertTrue(exception.getMessage().contains("raf@example.com"));
         verify(userRepository, times(1)).findUserByEmail("raf@example.com");
     }
+
 
     @Test
     void given_existing_email_when_user_exists_by_email_then_return_true() {
         // Given
-        when(userRepository.findUserByEmail("ghys.pad@example.com")).thenReturn(robin);
+        when(userRepository.findUserByEmail("ghys.pad@example.com")).thenReturn(Optional.of(robin));
 
         // When
         boolean exists = userService.userExistsByEmail("ghys.pad@example.com");
@@ -145,7 +149,7 @@ class UserServiceTest {
         String password = "Password123!";
         String token = "jwt-token-12345";
 
-        when(userRepository.findUserByEmail(email)).thenReturn(robin);
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(robin));
         when(passwordEncoder.matches(password, robin.getPassword())).thenReturn(true);
         when(jwtService.generateToken(robin)).thenReturn(token);
 
@@ -156,7 +160,7 @@ class UserServiceTest {
         assertNotNull(response);
         assertEquals(token, response.token());
         assertEquals("ghys_pad", response.username());
-        verify(userRepository, times(2)).findUserByEmail(email);
+        verify(userRepository, times(1)).findUserByEmail(email);
         verify(passwordEncoder, times(1)).matches(password, robin.getPassword());
         verify(jwtService, times(1)).generateToken(robin);
     }
@@ -167,7 +171,7 @@ class UserServiceTest {
         String email = "raf@example.com";
         String password = "Password123!";
 
-        when(userRepository.findUserByEmail(email)).thenReturn(null);
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.empty());
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -184,14 +188,14 @@ class UserServiceTest {
         String email = "ghys.pad@example.com";
         String wrongPassword = "WrongPassword!";
 
-        when(userRepository.findUserByEmail(email)).thenReturn(robin);
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(robin));  // Changed
         when(passwordEncoder.matches(wrongPassword, robin.getPassword())).thenReturn(false);
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
             () -> userService.authenticate(email, wrongPassword));
         assertTrue(exception.getMessage().contains("Onjuist wachtwoord"));
-        verify(userRepository, times(2)).findUserByEmail(email);
+        verify(userRepository, times(1)).findUserByEmail(email);  // Changed to times(1)
         verify(passwordEncoder, times(1)).matches(wrongPassword, robin.getPassword());
         verify(jwtService, never()).generateToken(any(User.class));
     }
@@ -203,8 +207,8 @@ class UserServiceTest {
         String token = "jwt-token-12345";
         User savedUser = new User(signUpRequest.username(), signUpRequest.email(), hashedPassword);
 
-        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(null);
-        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(null);
+        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(Optional.empty());  // Changed
+        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(Optional.empty());  // Changed
         when(passwordEncoder.encode(signUpRequest.password())).thenReturn(hashedPassword);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(jwtService.generateToken(any(User.class))).thenReturn(token);
@@ -225,7 +229,7 @@ class UserServiceTest {
     @Test
     void given_existing_username_when_signup_then_throw_exception() {
         // Given
-        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(robin);
+        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(Optional.of(robin));
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -241,8 +245,8 @@ class UserServiceTest {
     @Test
     void given_existing_email_when_signup_then_throw_exception() {
         // Given
-        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(null);
-        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(robin);
+        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(Optional.empty());  // Changed
+        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(Optional.of(robin));  // Changed
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -262,8 +266,8 @@ class UserServiceTest {
         String hashedPassword = "Password123!";
         String token = "jwt-token-12345";
 
-        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(null);
-        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(null);
+        when(userRepository.findUserByUserName(signUpRequest.username())).thenReturn(Optional.empty());  // Changed
+        when(userRepository.findUserByEmail(signUpRequest.email())).thenReturn(Optional.empty());  // Changed
         when(passwordEncoder.encode(plainPassword)).thenReturn(hashedPassword);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
@@ -287,7 +291,7 @@ class UserServiceTest {
         String password = "Password123!";
         String token = "jwt-token-12345";
 
-        when(userRepository.findUserByEmail(email)).thenReturn(robin);
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(robin));
         when(passwordEncoder.matches(password, robin.getPassword())).thenReturn(true);
         when(jwtService.generateToken(robin)).thenReturn(token);
 
