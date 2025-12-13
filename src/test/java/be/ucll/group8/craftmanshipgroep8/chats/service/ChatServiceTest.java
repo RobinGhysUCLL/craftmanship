@@ -15,22 +15,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
-
     @Mock
     private ChatRepository chatRepository;
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private AiService aiService;
 
     @InjectMocks
     private ChatService chatService;
@@ -44,6 +45,7 @@ class ChatServiceTest {
         testEmail = "ghys.pad@example.com";
         robin = new User("ghys_pad", testEmail, "Password123!");
         testChat = new Chat(robin);
+        lenient().when(aiService.generateReply(anyList(), anyString())).thenReturn("AI generated response");
     }
 
     @Test
@@ -54,8 +56,8 @@ class ChatServiceTest {
         testChat.addMessage(message1);
         testChat.addMessage(message2);
 
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -68,15 +70,15 @@ class ChatServiceTest {
         assertEquals("Hi there!", result.messages().get(1).message());
         assertFalse(result.messages().get(0).ai());
         assertTrue(result.messages().get(1).ai());
-        verify(userService, times(1)).userExistsByEmail(testEmail);
+        verify(userService, times(1)).findUserByEmail(testEmail);
         verify(chatRepository, times(1)).findByUserEmail(testEmail);
     }
 
     @Test
     void given_existing_user_with_no_chat_when_get_messages_then_return_empty_list() {
         // Given
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(null);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.empty());
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -85,15 +87,15 @@ class ChatServiceTest {
         assertNotNull(result);
         assertNotNull(result.messages());
         assertTrue(result.messages().isEmpty());
-        verify(userService, times(1)).userExistsByEmail(testEmail);
+        verify(userService, times(1)).findUserByEmail(testEmail);
         verify(chatRepository, times(1)).findByUserEmail(testEmail);
     }
 
     @Test
     void given_existing_user_with_chat_but_no_messages_when_get_messages_then_return_empty_list() {
         // Given
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -102,21 +104,22 @@ class ChatServiceTest {
         assertNotNull(result);
         assertNotNull(result.messages());
         assertTrue(result.messages().isEmpty());
-        verify(userService, times(1)).userExistsByEmail(testEmail);
+        verify(userService, times(1)).findUserByEmail(testEmail);
         verify(chatRepository, times(1)).findByUserEmail(testEmail);
     }
 
     @Test
     void given_non_existing_user_when_get_messages_then_throw_exception() {
         // Given
-        when(userService.userExistsByEmail(testEmail)).thenReturn(false);
+        when(userService.findUserByEmail(testEmail))
+            .thenThrow(new RuntimeException("Gebruiker met email '" + testEmail + "' bestaat niet."));
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
             () -> chatService.getMessages(testEmail));
         assertTrue(exception.getMessage().contains("bestaat niet"));
         assertTrue(exception.getMessage().contains(testEmail));
-        verify(userService, times(1)).userExistsByEmail(testEmail);
+        verify(userService, times(1)).findUserByEmail(testEmail);
         verify(chatRepository, never()).findByUserEmail(anyString());
     }
 
@@ -125,7 +128,7 @@ class ChatServiceTest {
         // Given
         String messageText = "What is Java?";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(null);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.empty());
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -157,7 +160,7 @@ class ChatServiceTest {
         testChat.addMessage(existingMessage);
 
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -185,12 +188,14 @@ class ChatServiceTest {
     void given_non_existing_user_when_post_message_then_throw_exception() {
         // Given
         String messageText = "Hello";
-        when(userService.findUserByEmail(testEmail)).thenReturn(null);
+        when(userService.findUserByEmail(testEmail))
+            .thenThrow(new RuntimeException("Gebruiker met email '" + testEmail + "' bestaat niet."));
 
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
             () -> chatService.postMessage(testEmail, messageText));
         assertTrue(exception.getMessage().contains("bestaat niet"));
+        assertTrue(exception.getMessage().contains(testEmail));
 
         verify(userService, times(1)).findUserByEmail(testEmail);
         verify(chatRepository, never()).findByUserEmail(anyString());
@@ -202,7 +207,7 @@ class ChatServiceTest {
         // Given
         String messageText = "Test question";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -221,7 +226,7 @@ class ChatServiceTest {
         // Given
         String emptyMessage = "";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -244,7 +249,7 @@ class ChatServiceTest {
         String longMessage = "This is a very long message that contains multiple sentences. " +
             "It should be stored completely without any truncation.";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -272,8 +277,8 @@ class ChatServiceTest {
         testChat.addMessage(message3);
         testChat.addMessage(message4);
 
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -292,8 +297,8 @@ class ChatServiceTest {
         // Given
         testChat.setMessages(null);
 
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -310,8 +315,8 @@ class ChatServiceTest {
         Message message = new Message("Test message", true);
         testChat.addMessage(message);
 
-        when(userService.userExistsByEmail(testEmail)).thenReturn(true);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(userService.findUserByEmail(testEmail)).thenReturn(robin);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
 
         // When
         GetChat result = chatService.getMessages(testEmail);
@@ -332,14 +337,15 @@ class ChatServiceTest {
         // Given
         String messageText = "Test";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
-        when(chatRepository.save(any(Chat.class))).thenThrow(new RuntimeException("Database error"));
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
+        when(aiService.generateReply(anyList(), anyString()))
+            .thenThrow(new RuntimeException("AI service error"));
 
         // When & Then
         assertThrows(RuntimeException.class,
             () -> chatService.postMessage(testEmail, messageText));
 
-        verify(chatRepository, times(1)).save(any(Chat.class));
+        verify(aiService, times(1)).generateReply(anyList(), anyString());
     }
 
     @Test
@@ -349,7 +355,7 @@ class ChatServiceTest {
         String message2 = "Second question";
 
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -367,7 +373,7 @@ class ChatServiceTest {
         // Given
         String messageText = "User question";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -395,7 +401,7 @@ class ChatServiceTest {
         // Given
         String messageText = "Test message";
         when(userService.findUserByEmail(testEmail)).thenReturn(robin);
-        when(chatRepository.findByUserEmail(testEmail)).thenReturn(testChat);
+        when(chatRepository.findByUserEmail(testEmail)).thenReturn(Optional.of(testChat));
         when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User originalUser = testChat.getUser();
