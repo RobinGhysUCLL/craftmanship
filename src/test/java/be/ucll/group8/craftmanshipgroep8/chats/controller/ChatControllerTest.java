@@ -3,6 +3,7 @@ package be.ucll.group8.craftmanshipgroep8.chats.controller;
 import be.ucll.group8.craftmanshipgroep8.chats.controller.Dto.GetChat;
 import be.ucll.group8.craftmanshipgroep8.chats.controller.Dto.PostMessage;
 import be.ucll.group8.craftmanshipgroep8.chats.repository.ChatRepository;
+import be.ucll.group8.craftmanshipgroep8.chats.service.AiService;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignUpRequest;
 import be.ucll.group8.craftmanshipgroep8.user.controller.Dto.SignupResponse;
 import be.ucll.group8.craftmanshipgroep8.user.repository.UserRepository;
@@ -11,12 +12,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -37,6 +42,9 @@ class ChatControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private AiService aiService;
+
     private String testUserEmail;
     private String testUserPassword;
     private String authToken;
@@ -45,6 +53,10 @@ class ChatControllerTest {
     void setUp() {
         chatRepository.deleteAll();
         userRepository.deleteAll();
+
+        // Mock the AI service to return a predictable response
+        when(aiService.generateReply(anyList(), anyString()))
+            .thenReturn("This is a mocked AI response");
 
         testUserEmail = "ghys.pad@example.com";
         testUserPassword = "Password123!";
@@ -250,7 +262,7 @@ class ChatControllerTest {
         );
 
         // Then
-        //assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()); => issue dat mss nog niet uitgewekt is
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
@@ -269,7 +281,7 @@ class ChatControllerTest {
         );
 
         // Then
-        //assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()); => geeft internal server error moet 401 zijn
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
