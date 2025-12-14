@@ -10,10 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          
       - name: Run tests
         env:
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: mvn test
+        
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
