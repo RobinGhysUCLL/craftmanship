@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Run tests
+        env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: mvn test
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
