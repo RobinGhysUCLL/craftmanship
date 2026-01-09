@@ -8,6 +8,6 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @ConfigurationProperties(prefix = "cors")
 public record CorsProperties(
-        @DefaultValue({"http://localhost:8080", "https://craftmanship.robinghys.com/"}) List<URL> allowedOrigins) {
+        @DefaultValue({"http://localhost:8080", "http://localhost:8081", "https://craftmanship.robinghys.com/"}) List<URL> allowedOrigins) {
     // Idk what port frontend runs on
 }
